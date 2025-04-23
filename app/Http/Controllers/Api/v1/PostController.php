@@ -8,35 +8,33 @@ use App\Http\Requests\PostUpdateRequest;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
 
-/**
- * @OA\Tag(
- *     name="Posts",
- *     description="management posts"
- * )
- */
+
 class PostController extends Controller
 {
     /**
-     * show all posts
+     * Get all posts
      *
      * @OA\Get(
-     *     path="/api/posts",
-     *     operationId="getAllPosts",
+     *     path="/api/v1/posts",
+     *     operationId="index",
      *     tags={"Posts"},
-     *     summary="all posts",
-     *     description="get all posts",
+     *     summary="Get All Posts API",
+     *     description="this is an api by which we can show all posts",
      *     @OA\Response(
      *         response=200,
-     *         description="success",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="show all posts"),
-     *             @OA\Property(
-     *                 property="posts",
-     *                 type="array",
-     *                 @OA\Items(ref="#/components/schemas/Post")
-     *             )
-     *         )
-     *     )
+     *         description="show all posts",
+     *         @OA\JsonContent(),
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Resource not found",
+     *         @OA\JsonContent(),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to execute api request",
+     *         @OA\JsonContent(),
+     *     ),
      * )
      */
     public function index(): JsonResponse
@@ -49,33 +47,51 @@ class PostController extends Controller
     }
 
     /**
-     * create new post
+     * Create new user
      *
      * @OA\Post(
-     *     path="/api/posts",
-     *     operationId="createPost",
-     *     tags={"Posts"},
-     *     summary="create new post",
-     *     description="create a post",
+     *     path="/api/v1/posts/store",
+     *     operationId="store",
+     *     tags={"Create"},
+     *     summary="Post Create API",
+     *     description="this is an api by which we can create post",
      *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/StorePostRequest")
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  required={"title", "content", "author_id"},
+     *                  @OA\Property(property="title", type="text"),
+     *                  @OA\Property(property="content", type="text"),
+     *                  @OA\Property(property="author_id", type="integer"),
+     *              )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="New post created",
+     *         @OA\JsonContent(),
      *     ),
      *     @OA\Response(
      *         response=201,
-     *         description="post created",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="new post created"),
-     *             @OA\Property(property="post", ref="#/components/schemas/Post")
-     *         )
+     *         description="New post created",
+     *         @OA\JsonContent(),
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Resource not found",
+     *         @OA\JsonContent(),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to execute api request",
+     *         @OA\JsonContent(),
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="validation error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
-     *             @OA\Property(property="errors", type="object")
-     *         )
+     *         description="Validation error",
+     *         @OA\JsonContent(),
      *     )
      * )
      */
@@ -89,14 +105,14 @@ class PostController extends Controller
     }
 
     /**
-     * post detail
+     * Show a post
      *
      * @OA\Get(
-     *     path="/api/posts/{post}",
-     *     operationId="getPostById",
-     *     tags={"Posts"},
-     *     summary="show a post",
-     *     description="show post detail",
+     *     path="/api/v1/posts/show/{post}",
+     *     operationId="show",
+     *     tags={"Show"},
+     *     summary="Get Post API",
+     *     description="this is an api by which we can show a post",
      *     @OA\Parameter(
      *         name="post",
      *         in="path",
@@ -106,16 +122,19 @@ class PostController extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="success",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="show post"),
-     *             @OA\Property(property="post", ref="#/components/schemas/Post")
-     *         )
+     *         description="show post",
+     *         @OA\JsonContent(),
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="post not found"
-     *     )
+     *         description="Resource not found",
+     *         @OA\JsonContent(),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to execute api request",
+     *         @OA\JsonContent(),
+     *     ),
      * )
      */
     public function show(Post $post): JsonResponse
@@ -127,12 +146,12 @@ class PostController extends Controller
     }
 
     /**
-     * update post
+     * Update a post
      *
      * @OA\Put(
-     *     path="/api/posts/{post}",
-     *     operationId="updatePost",
-     *     tags={"Posts"},
+     *     path="/api/v1/posts/update/{post}",
+     *     operationId="update",
+     *     tags={"Update"},
      *     summary="update post",
      *     description="update a post",
      *     @OA\Parameter(
@@ -143,25 +162,35 @@ class PostController extends Controller
      *         @OA\Schema(type="integer")
      *     ),
      *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/UpdatePostRequest")
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  required={"title", "content"},
+     *                  @OA\Property(property="title", type="text"),
+     *                  @OA\Property(property="content", type="text"),
+     *              )
+     *         )
      *     ),
      *     @OA\Response(
      *         response=200,
      *         description="post updated",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="post updated"),
-     *             @OA\Property(property="post", ref="#/components/schemas/Post")
-     *         )
+     *         @OA\JsonContent()
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="post not found"
+     *         description="Resource not found"
      *     ),
      *     @OA\Response(
      *         response=422,
-     *         description="validation erroe"
-     *     )
+     *         description="Validation erroe"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to execute api request",
+     *         @OA\JsonContent(),
+     *     ),
      * )
      */
     public function update(PostUpdateRequest $request, Post $post): JsonResponse
@@ -174,13 +203,13 @@ class PostController extends Controller
     }
 
     /**
-     * حذف پست
+     * Delete a post
      *
      * @OA\Delete(
-     *     path="/api/posts/{post}",
-     *     operationId="deletePost",
-     *     tags={"Posts"},
-     *     summary="delete",
+     *     path="/api/v1/posts/destroy/{post}",
+     *     operationId="delete",
+     *     tags={"Delete"},
+     *     summary="delete post",
      *     description="delete a post",
      *     @OA\Parameter(
      *         name="post",
@@ -195,8 +224,13 @@ class PostController extends Controller
      *     ),
      *     @OA\Response(
      *         response=404,
-     *         description="post not found"
-     *     )
+     *         description="Resource not found"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to execute api request",
+     *         @OA\JsonContent(),
+     *     ), 
      * )
      */
     public function destroy(Post $post): JsonResponse
