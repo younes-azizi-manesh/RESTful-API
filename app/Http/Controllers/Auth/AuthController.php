@@ -9,13 +9,6 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-/**
- * @OA\Tag(
- *     name="Authentication",
- *     description="User authentication"
- * )
- */
-
 class AuthController extends Controller
 {
     /**
@@ -23,30 +16,47 @@ class AuthController extends Controller
      *
      * @OA\Post(
      *     path="/api/register",
-     *     operationId="registerUser",
-     *     tags={"Authentication"},
-     *     summary="Register user,
-     *     description="Register user in system",
+     *     operationId="register",
+     *     tags={"Register"},
+     *     summary="User Registeration API",
+     *     description="this is an api by which we can register user",
      *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/AuthRequest")
+     *         @OA\JsonContent(),
+     *         @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  required={"name", "email", "password"},
+     *                  @OA\Property(property="name", type="text"),
+     *                  @OA\Property(property="email", type="email"),
+     *                  @OA\Property(property="password", type="password"),
+     *              )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Register successed",
+     *         @OA\JsonContent(),
      *     ),
      *     @OA\Response(
      *         response=201,
      *         description="Register successed",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Register successed"),
-     *             @OA\Property(property="user", ref="#/components/schemas/User"),
-     *             @OA\Property(property="token", type="string", example="1|abcdef123456")
-     *         )
+     *         @OA\JsonContent(),
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Resource not found",
+     *         @OA\JsonContent(),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to execute api request",
+     *         @OA\JsonContent(),
      *     ),
      *     @OA\Response(
      *         response=422,
      *         description="validation error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
-     *             @OA\Property(property="errors", type="object")
-     *         )
+     *         @OA\JsonContent(),
      *     )
      * )
      */
@@ -62,34 +72,45 @@ class AuthController extends Controller
     }
 
     /**
-     * login user
      *
      * @OA\Post(
      *     path="/api/login",
-     *     operationId="loginUser",
-     *     tags={"Authentication"},
-     *     summary="login user",
-     *     description="login user and access the token",
+     *     operationId="login",
+     *     tags={"Login"},
+     *     summary="User Login API",
+     *     description="this is an api we which can login user",
      *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/AuthRequest")
-     *     ),
+     *       @OA\JsonContent(),
+     *         @OA\MediaType(
+     *              mediaType="multipart/form-data",
+     *              @OA\Schema(
+     *                  type="object",
+     *                  required={"email", "password"},
+     *                  @OA\Property(property="email", type="email"),
+     *                  @OA\Property(property="password", type="password"),
+     *              )
+     *         )
+     *      ),
      *     @OA\Response(
      *         response=200,
      *         description="success login",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Login successed"),
-     *             @OA\Property(property="user", ref="#/components/schemas/User"),
-     *             @OA\Property(property="token", type="string", example="1|abcdef123456")
-     *         )
+     *         @OA\JsonContent(),
      *     ),
      *     @OA\Response(
      *         response=401,
-     *         description="failed login",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Login is failed!")
-     *         )
-     *     )
+     *         description="Logged in failed",
+     *         @OA\JsonContent(),
+     *     ),
+     *      @OA\Response(
+     *         response=404,
+     *         description="Resource not found",
+     *         @OA\JsonContent(),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to execute api request",
+     *         @OA\JsonContent(),
+     *     ),
      * )
      */
     public function login(AuthLoginRequest $request): JsonResponse
@@ -109,6 +130,32 @@ class AuthController extends Controller
         ], 200);
     }
 
+    /**
+     *
+     * @OA\Post(
+     *     path="/api/logout",
+     *     operationId="logout",
+     *     tags={"logout"},
+     *     summary="User Logout API",
+     *     description="this is an api we which can logout user",
+     *     @OA\RequestBody(),
+     *     @OA\Response(
+     *         response=200,
+     *         description="logged out successfully",
+     *         @OA\JsonContent(),
+     *     ),
+     *      @OA\Response(
+     *         response=404,
+     *         description="Resource not found",
+     *         @OA\JsonContent(),
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Failed to execute api request",
+     *         @OA\JsonContent(),
+     *     ),
+     * )
+     */
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
