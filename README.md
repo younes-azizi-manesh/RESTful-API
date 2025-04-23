@@ -1,4 +1,4 @@
-# RESTful API System API
+# RESTful API System
 
 This project is a basic RESTful API implementing token authentication via Laravel Sanctum. It provides full CRUD functionality for posts and includes comprehensive test coverage for both authentication and post operations.
 
