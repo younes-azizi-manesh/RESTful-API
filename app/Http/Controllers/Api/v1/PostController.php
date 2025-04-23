@@ -31,6 +31,11 @@ class PostController extends Controller
      *         @OA\JsonContent(),
      *     ),
      *     @OA\Response(
+     *         response=204,
+     *         description="No posts found",
+     *         @OA\JsonContent(),
+     *     ),
+     *     @OA\Response(
      *         response=500,
      *         description="Failed to execute api request",
      *         @OA\JsonContent(),
@@ -40,6 +45,7 @@ class PostController extends Controller
     public function index(): JsonResponse
     {
         $posts = Post::all();
+        abort_if($posts->isEmpty(), 204, 'No posts found');
         return response()->json([
             'message' => 'show all posts',
             'posts' => $posts
@@ -139,6 +145,7 @@ class PostController extends Controller
      */
     public function show(Post $post): JsonResponse
     {
+        abort_if(!$post, 404, 'Resource not found');
         return response()->json([
             'message' => 'show post',
             'post' => $post
@@ -195,6 +202,7 @@ class PostController extends Controller
      */
     public function update(PostUpdateRequest $request, Post $post): JsonResponse
     {
+        abort_if(!$post, 404, 'Resource not found');
         $post->update($request->validated());
         return response()->json([
             'message' => 'post updated',
@@ -235,6 +243,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post): JsonResponse
     {
+        abort_if(!$post, 404, 'Resource not found');
         $post->delete();
         return response()->json( null, 204);
     }
