@@ -8,6 +8,7 @@ use App\Http\Requests\Auth\AuthRegisterRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class AuthController extends Controller
 {
@@ -64,11 +65,7 @@ class AuthController extends Controller
     {
         $user = User::create($request->validated());
         $token = $user->createToken('register-token')->plainTextToken;
-        return response()->json([
-            'message' => 'Register successed',
-            'user' => $user,
-            'token' => $token
-        ], 201);
+        return Response::jsonResponse(['user' => $user, 'token' => $token], 'Register successed', 201);
     }
 
     /**
@@ -116,18 +113,11 @@ class AuthController extends Controller
     public function login(AuthLoginRequest $request): JsonResponse
     {
         if (!auth()->attempt($request->validated())) {
-            return response()->json([
-                'message' => 'Logged in failed!',
-            ], 401);
+            return Response::jsonResponse(null, 'Logged in failed', 401);
         }
-
         $user = $request->user();
         $token = $user->createToken('login-token')->plainTextToken;
-        return response()->json([
-            'message' => 'Logged in successfully',
-            'user' => $user,
-            'token' => $token
-        ], 200);
+        return Response::jsonResponse(['user' => $user, 'token' => $token], 'Logged in successfully', 200);
     }
 
     /**
@@ -159,8 +149,6 @@ class AuthController extends Controller
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json([
-            'message' => 'logged out successfully',
-        ], 200);
+        return Response::jsonResponse(null, 'logged out successfully', 200);
     }
 }
