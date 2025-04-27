@@ -7,7 +7,7 @@ use App\Http\Requests\PostStoreRequest;
 use App\Http\Requests\PostUpdateRequest;
 use App\Models\Post;
 use Illuminate\Http\JsonResponse;
-
+use Illuminate\Support\Facades\Response;
 
 class PostController extends Controller
 {
@@ -45,11 +45,11 @@ class PostController extends Controller
     public function index(): JsonResponse
     {
         $posts = Post::all();
-        abort_if($posts->isEmpty(), 204, 'No posts found');
-        return response()->json([
-            'message' => 'show all posts',
-            'posts' => $posts
-        ], 200);
+        if($posts->isEmpty())
+        {
+            return Response::jsonResponse(null, 'No posts found', 204);
+        }
+        return Response::jsonResponse($posts, 'show all posts', 200);
     }
 
     /**
@@ -104,10 +104,7 @@ class PostController extends Controller
     public function store(PostStoreRequest $request): JsonResponse
     {
         $post = Post::create($request->validated());
-        return response()->json([
-            'message' => 'new post created',
-            'post' => $post
-        ], 201);
+        return Response::jsonResponse($post, 'new post created', 201);
     }
 
     /**
@@ -145,11 +142,11 @@ class PostController extends Controller
      */
     public function show(Post $post): JsonResponse
     {
-        abort_if(!$post, 404, 'Resource not found');
-        return response()->json([
-            'message' => 'show post',
-            'post' => $post
-        ], 200);
+        if(!$post)
+        {
+            return Response::jsonResponse($post, 'Resource not found', 404);
+        }
+        return Response::jsonResponse($post, 'show post', 200);
     }
 
     /**
@@ -202,12 +199,13 @@ class PostController extends Controller
      */
     public function update(PostUpdateRequest $request, Post $post): JsonResponse
     {
-        abort_if(!$post, 404, 'Resource not found');
+        if(!$post)
+        {
+            return Response::jsonResponse($post, 'Resource not found', 404);
+        }
         $post->update($request->validated());
-        return response()->json([
-            'message' => 'post updated',
-            'post' => $post
-        ], 200);
+        return Response::jsonResponse($post, 'post updated', 200);
+
     }
 
     /**
@@ -243,8 +241,11 @@ class PostController extends Controller
      */
     public function destroy(Post $post): JsonResponse
     {
-        abort_if(!$post, 404, 'Resource not found');
+        if(!$post)
+        {
+            return Response::jsonResponse(null, 'Resource not found', 404);
+        }
         $post->delete();
-        return response()->json( null, 204);
+        return Response::jsonResponse(null, 'post deleted', 204);
     }
 }
